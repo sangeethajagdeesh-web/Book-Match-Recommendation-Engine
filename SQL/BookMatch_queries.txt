@@ -1,1 +1,172 @@
+1.Create Database
+==================
+create database if not exists bookmatch;
+use bookmatch;
+
+2. Table Structure
+===================
+create table Books (
+    ISBN       VARCHAR(20),
+    Title      VARCHAR(500),
+    Author     VARCHAR(255),
+    Year       VARCHAR(10),
+    Publisher  VARCHAR(255)
+);
+
+create table Users (
+    User_ID    INT,
+    Location   VARCHAR(255),
+    Age        INT
+);
+
+create table Ratings (
+    User_ID    INT,
+    ISBN       VARCHAR(20),
+    Rating     INT
+);
+
+
+
+1.TOP 10 HIGHEST RATED BOOKS
+==============================
+select books.Title as Title,
+books.Author as Author,
+round(avg(ratings.Rating),2) as Avg_rating,
+count(ratings.Rating) as Tot_rating 
+from books
+inner join ratings on books.ISBN = ratings.ISBN
+group by books.Title,books.Author 
+having count(ratings.Rating) > 50
+order by Avg_rating desc 
+limit 10;
+
+2.MOST POPULAR BOOKS(MOST RATED)
+================================
+select books.Title as Title,
+books.Author as Author,books.Publisher as Publisher,
+count(ratings.Rating) as Tot_rating 
+from books
+inner join ratings on books.ISBN = ratings.ISBN
+group by books.Title,books.Author,books.Publisher
+order by Tot_rating desc
+limit 10
+
+3.TOP 10 MOST RATED AUTHORS
+===========================
+select books.Author as Author,
+count(distinct books.ISBN) as Tot_books,
+count(ratings.Rating) as Tot_ratings,
+round(avg(ratings.Rating),2) as Avg_rating
+from books
+inner join ratings on books.ISBN = ratings.ISBN
+group by books.Author
+having count(ratings.Rating)>100
+order by Avg_rating desc
+limit 10;
+
+4.RATING DISTRIBUTION
+=====================
+select Rating,
+count(*) as Rating_distribution
+from ratings
+group by Rating
+order by Rating desc
+
+5.MOST ACTIVE USERS AND THEIR AVG RATING
+========================================
+select users.User_ID,
+users.Location,
+users.Age,
+count(ratings.Rating) as Tot_ratings,
+round(avg(ratings.Rating),2) as Avg_rating
+from users
+inner join ratings on users.User_ID= ratings.User_ID
+group by users.User_ID,users.Location,users.Age
+order by Tot_ratings desc
+limit 10
+
+6.BOOKS PUBLISHED PER YEAR
+==========================
+SELECT
+    YOP    AS Year,
+    COUNT(*)               AS Books_Published
+FROM Books
+WHERE YOP BETWEEN '1950' AND '2004'
+GROUP BY YOP
+ORDER BY YOP ASC;
+
+7.TOP PUBLISHERS BY BOOK COUNT 
+==============================
+select Publisher,
+count(distinct ISBN) as Total_books
+from books
+where publisher is not null and publisher !=''
+group by Publisher
+order by Total_books desc
+limit 20;
+
+8.USERS ABOVE AVG RATING GIVERS, RATED ABOVE 50 BOOKS
+=====================================================
+select User_ID,
+count(Rating) as Books_rated,
+round(avg(Rating),2) as My_avg
+from ratings
+group by User_ID
+having My_avg > (
+select Avg(Rating)
+from ratings) and count(*) >50
+order by My_avg desc
+limit 20
+
+RECOMMENDATION ENGINE FOR TOP 10 ACTIVE USERS
+=============================================
+WITH popular_books AS (
+    SELECT
+        books.ISBN,
+        books.Title,
+        books.Author,
+        books.Publisher,
+        COUNT(ratings.Rating) AS Total_rating,
+        ROUND(AVG(ratings.Rating),2) AS Avg_rating
+    FROM books
+    INNER JOIN ratings
+        ON books.ISBN = ratings.ISBN
+    GROUP BY
+        books.ISBN,
+        books.Title,
+        books.Author,
+        books.Publisher
+    HAVING COUNT(ratings.Rating) > 50
+),
+recommendations AS (
+    SELECT
+        au.User_ID,
+        pb.Title,
+        pb.Author,
+        pb.Publisher,
+        pb.Total_rating,
+        pb.Avg_rating,
+        ROW_NUMBER() OVER (
+            PARTITION BY au.User_ID
+            ORDER BY pb.Avg_rating DESC,
+                     pb.Total_rating DESC
+        ) AS rn
+    FROM active_users au
+    CROSS JOIN popular_books pb
+    LEFT JOIN ratings r2
+        ON pb.ISBN = r2.ISBN
+       AND r2.User_ID = au.User_ID
+    WHERE r2.ISBN IS NULL
+)
+SELECT
+    User_ID,
+    Title,
+    Author,
+    Publisher,
+    Total_rating,
+    Avg_rating
+FROM recommendations
+WHERE rn <= 10;
+
+
 
