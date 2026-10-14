@@ -95,7 +95,7 @@ Reprocessed the 4,33,671-row ratings dataset in Databricks using PySpark to repl
 - Match: True ✅
 
 Full notebook with all cell outputs:
-[BookMatch_PySpark_Analysis.ipynb](Python/BookMatch_PySpark_Analysis.ipynb)
+[BookMatch_PySpark_Analysis.ipynb](Cloud_Extensions/Databricks/BookMatch_PySpark_Analysis.ipynb)
 
 ### Validation Match
 ![PySpark Validation](Cloud_Extensions/Databricks/pyspark_validation_match.png)
