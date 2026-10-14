@@ -97,6 +97,7 @@ Reprocessed the 4,33,671-row ratings dataset in Databricks using PySpark to repl
 Full notebook with all cell outputs:
 [BookMatch_PySpark_Analysis.ipynb](Python/BookMatch_PySpark_Analysis.ipynb)
 
+### Validation Match
 ![PySpark Validation](Cloud_Extensions/Databricks/pyspark_validation_match.png)
 
 ### Google BigQuery — Cross-Platform Migration
@@ -108,9 +109,16 @@ Migrated the ratings dataset to Google BigQuery and validated core aggregation a
 - Rating distribution: identical pattern to MySQL results ✅
 - Active user rankings: consistent with MySQL query output ✅
 
+### Row Count
 ![BigQuery Row Count](Cloud_Extensions/BigQuery/bigquery_row_count.png)
+
+### Distribution
 ![BigQuery Distribution](Cloud_Extensions/BigQuery/bigquery_distribution.png)
+
+### Active Users
 ![BigQuery Active Users](Cloud_Extensions/BigQuery/bigquery_active_users.png)
+
+### Consistency Check
 ![BigQuery Consistency](Cloud_Extensions/BigQuery/bigquery_consistency_check.png)
 
 ## Files in This Repository
